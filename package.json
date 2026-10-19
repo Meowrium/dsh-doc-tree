@@ -1,0 +1,72 @@
+{
+  "name": "dsh-doc-tree",
+  "version": "0.1.0",
+  "description": "DSH right-sidebar documentation tree: curated layers, records lifecycle badges, full-text search, in-pane Markdown reading, and an AI-assisted /docs-organize workflow.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-api-workspace-files"
+      ]
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "README.md",
+    "docs/screenshots"
+  ],
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "sidebar",
+    "documentation",
+    "markdown",
+    "docs-tree",
+    "records"
+  ],
+  "license": "MIT",
+  "author": "Meowrium",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Meowrium/dsh-doc-tree.git"
+  },
+  "homepage": "https://github.com/Meowrium/dsh-doc-tree#readme",
+  "bugs": {
+    "url": "https://github.com/Meowrium/dsh-doc-tree/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,10 @@
+# dsh-doc-tree bundle patch
+#
+# The profile boot merges this `insert` row exactly like the manual
+# cordis.patch.yml mount line. Installed through the official CLI:
+#
+#   dsh plugin --profile web add dsh-doc-tree
+#
+- insert:
+    - id: doc-tree
+      name: 'dsh-doc-tree'
