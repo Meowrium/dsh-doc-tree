@@ -4,9 +4,19 @@
 
 在 DSH 原生右侧栏里按分层浏览文档、展开 `records/{lifecycle}/{class}`、全文搜索、同栏阅读 Markdown，并通过 `/docs-organize` 让模型完成语义分层、机械体检与人工审批。
 
+还带一个 **Files.md 风格** 的阅读模式：暖色主题、双文档对照、`Ctrl/Cmd+K` 快速切换，以及行内/块级 LaTeX 公式渲染。
+
 ![双栏布局](docs/screenshots/split.png)
 
 ![阅读器](docs/screenshots/reader.png)
+
+![Files.md 风格 + LaTeX](docs/screenshots/filesmd-theme.png)
+
+![LaTeX 公式（默认主题）](docs/screenshots/latex.png)
+
+![双文档对照](docs/screenshots/filesmd-pair.png)
+
+![快速切换](docs/screenshots/filesmd-quick.png)
 
 ## 特性
 
@@ -18,6 +28,10 @@
 - **配置驱动**：工作区根 `.dsh-doc-tree.json` 定义 `root` / `groups` / `records.statuses`；没有配置时用内置默认分层。
 - **AI 分层**：`/docs-organize` 让模型 scan → 读入口 → lint → dry-run → 用 `ask_user_question` 批量审批 → 写配置。
 - **布局**：右栏 ≥700px 自动双栏（列表 + 阅读区），更窄时单栏下钻；排版对齐 DSH 文档预览的阅读体验。
+- **Files.md 风格**：顶栏调色板按钮切换暖色主题（大标题、暖灰背景、蓝链接、左侧蓝条引用）。
+- **双文档对照**：阅读器「对照」按钮选择第二篇文档；宽屏显示「列表 + 两篇」，窄屏自动隐藏列表、两篇平分。
+- **快速切换**：`Ctrl/Cmd+K` 打开命令面板，按路径过滤，↑/↓ 选择，Enter 打开。
+- **LaTeX 公式**：`$...$` 行内、`$$...$$` 块级；矩阵、分式、对齐、表格混排；复用宿主 KaTeX，不额外打包。
 
 ![全文搜索](docs/screenshots/search.png)
 
@@ -31,6 +45,34 @@
 - 数据：`workspaceFiles` Remote（只读）
 - Markdown：baseline `@deepseek-ai/dsh-client-ui-primitives` 的 `MarkdownText` / `MarkdownDelegateProvider`
 - Host 工具：`ctx.tools.register` + `ctx.commands.register` + `ctx.fs`
+
+## 键盘与交互
+
+| 操作 | 快捷键 / 入口 |
+|---|---|
+| 快速切换文档 | `Ctrl/Cmd+K` |
+| 关闭快速切换 / 大纲 | `Esc` |
+| 切换 Files.md 风格 | 顶栏调色板按钮 |
+| 双文档对照 | 阅读器「对照」→ 选择第二篇 |
+| 取消对照 | 右侧阅读器「取消」 |
+| 切换原始结构 | 顶栏 `<>` |
+| 重新扫描 | 顶栏 `⟳` |
+| 扫描文档根 | 顶栏雷达按钮 |
+
+## 公式
+
+公式由宿主 `MarkdownText` 的 KaTeX 渲染，插件不引入额外依赖：
+
+```markdown
+行内：$E = mc^2$
+
+$$
+\frac{\partial \mathcal{L}}{\partial \theta}
+= \frac{1}{N}\sum_{i=1}^{N}(\hat{y}_i - y_i)^2
+$$
+```
+
+块级公式建议 `$$` 独占一行，前后留空行。示例见 [examples/docs/formulas.md](examples/docs/formulas.md)；把根指向 `examples/docs` 即可在插件里看到公式、矩阵、表格与对照效果。
 
 ## 安装
 
@@ -59,6 +101,7 @@ dev_install_package /path/to/dsh-doc-tree
 2. 首次打开会自动扫描候选根目录；也可点顶部雷达按钮重扫，点候选路径后「保存」。
 3. 点右上角 `<>` 可在「策展分层」和「原始目录结构」之间切换；`⟳` 重新扫描。
 4. 点击文档在右侧阅读；`大纲` 打开标题导航，`×` 关闭当前文档。
+5. 想看公式/对照示例：把根目录填成 `<workspace>/dsh-doc-tree/examples/docs`。
 
 ## 配置
 
@@ -139,6 +182,7 @@ dsh-doc-tree/
 ├─ cordis.patch.yml   # bundle 挂载行
 ├─ lib/index.js       # host：doc_tree_* 工具 + /docs-organize 命令
 ├─ lib/client.js      # client：tab 类型注册 + 扫描/配置 + 树 + 阅读器
+├─ examples/docs/     # 公式 / 对照示例文档
 └─ docs/screenshots/  # README 截图
 ```
 
@@ -158,6 +202,9 @@ dsh-doc-tree/
 - 单文件读取上限 5000 行（`workspaceFiles.read` 分页参数）。
 - 记录状态徽标取自路径 lifecycle；文件内 `Status:` 在阅读时显示。
 - 未做虚拟滚动；上千篇文档建议加。
+- 窄屏对照模式会隐藏左侧文档列表，点右侧「取消」回到列表。
+- 公式渲染依赖宿主 `MarkdownText` 的 KaTeX（DSH 0.2.1-rc.2 已内置）；未加载 KaTeX 时公式会退化为文本。
+- Files.md 风格是视觉/交互移植，不包含它的编辑器、chat、sync 或文件写入能力。
 
 ## 开发与验证
 
@@ -166,11 +213,12 @@ node --check lib/client.js
 node --check lib/index.js
 ```
 
-已验证：DSH `0.2.1-rc.2` 右侧栏注册、124 篇扫描、记录层 80 篇展开、跨文档链接、全文搜索、记录筛选、dry-run diff、lint（真实文档 124 篇 / 0 error）。
+已验证：DSH `0.2.1-rc.2` 右侧栏注册、124 篇扫描、记录层 80 篇展开、跨文档链接、全文搜索、记录筛选、dry-run diff、lint（真实文档 124 篇 / 0 error）、行内/块级 LaTeX、矩阵、双文档对照、`Ctrl/Cmd+K`。
 
 ## 致谢
 
 - UI 布局与阅读排版参考了 [mlosun/dsh-docs-panel](https://github.com/mlosun/dsh-docs-panel)（MIT）。
+- Files.md 风格参考了 [zakirullin/files.md](https://github.com/zakirullin/files.md)（MIT）；本插件只移植视觉/交互，未引入其代码。
 - 右侧栏扩展点与 Markdown 渲染来自 [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) 的公开包。
 
 ## License

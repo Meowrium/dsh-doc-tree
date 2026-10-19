@@ -33,7 +33,8 @@
     "lib/client.js",
     "cordis.patch.yml",
     "README.md",
-    "docs/screenshots"
+    "docs/screenshots",
+    "examples"
   ],
   "peerDependencies": {
     "react": "^18.2.0"
